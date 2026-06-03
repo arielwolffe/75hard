@@ -1,40 +1,21 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import fs from "fs";
+import path from "path";
 
-const s3 = new S3Client({
-  endpoint: process.env.DO_SPACES_ENDPOINT!,
-  region: process.env.DO_SPACES_REGION || "nyc3",
-  credentials: {
-    accessKeyId: process.env.DO_SPACES_KEY!,
-    secretAccessKey: process.env.DO_SPACES_SECRET!,
-  },
-  forcePathStyle: false,
-});
-
-const bucket = process.env.DO_SPACES_BUCKET!;
-const cdnEndpoint = process.env.DO_SPACES_CDN_ENDPOINT!;
+const photosDir = path.join(process.env.DATA_PATH || "./data", "photos");
 
 export async function uploadPhoto(
   buffer: Buffer,
-  key: string,
-  contentType: string
+  key: string
 ): Promise<string> {
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: bucket,
-      Key: key,
-      Body: buffer,
-      ContentType: contentType,
-      ACL: "public-read",
-    })
-  );
-  return `${cdnEndpoint}/${key}`;
+  const filePath = path.join(photosDir, key);
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, buffer);
+  return `/api/photos/${key}`;
 }
 
 export async function deletePhoto(key: string): Promise<void> {
-  await s3.send(
-    new DeleteObjectCommand({
-      Bucket: bucket,
-      Key: key,
-    })
-  );
+  const filePath = path.join(photosDir, key);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
 }

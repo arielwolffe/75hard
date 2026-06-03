@@ -2,7 +2,6 @@ import { db } from "@/db";
 import { days, dayPhotos, challenges } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import { uploadPhoto, deletePhoto } from "@/lib/spaces";
-import sharp from "sharp";
 
 export async function POST(
   request: Request,
@@ -34,12 +33,9 @@ export async function POST(
   }
 
   const arrayBuffer = await file.arrayBuffer();
-  const buffer = await sharp(Buffer.from(arrayBuffer))
-    .resize(1200, 1200, { fit: "inside", withoutEnlargement: true })
-    .jpeg({ quality: 80 })
-    .toBuffer();
-
-  const key = `75hard/challenge-${challenge.id}/day-${num}/${angle}.jpg`;
+  const buffer = Buffer.from(arrayBuffer);
+  const ext = file.type === "image/png" ? "png" : "jpg";
+  const key = `challenge-${challenge.id}/day-${num}/${angle}.${ext}`;
 
   const existing = db.query.dayPhotos.findFirst({
     where: and(eq(dayPhotos.dayId, day.id), eq(dayPhotos.angle, angle as "front" | "back" | "side")),
@@ -49,7 +45,7 @@ export async function POST(
     db.delete(dayPhotos).where(eq(dayPhotos.id, existing.id)).run();
   }
 
-  const url = await uploadPhoto(buffer, key, "image/jpeg");
+  const url = await uploadPhoto(buffer, key);
 
   const photo = db
     .insert(dayPhotos)
