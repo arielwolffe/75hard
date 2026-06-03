@@ -6,6 +6,7 @@ import { getDayNumber } from "@/lib/dates";
 import { TOTAL_DAYS } from "@/lib/constants";
 import { CalendarGrid } from "@/components/calendar/calendar-grid";
 import { MissedDayModal } from "@/components/calendar/missed-day-modal";
+import { ResetButton } from "@/components/reset-button";
 
 export const dynamic = "force-dynamic";
 
@@ -51,6 +52,10 @@ export default function ChallengePage() {
       {incompletePastDays.length > 0 && (
         <MissedDayModal missedDays={incompletePastDays} />
       )}
+
+      <div className="mt-10 mb-24 flex justify-center">
+        <ResetButton />
+      </div>
     </div>
   );
 }
