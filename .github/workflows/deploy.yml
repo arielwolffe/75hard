@@ -1,0 +1,22 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Droplet
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 174.138.72.80
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /app
+            git pull
+            docker build -t 75hard .
+            docker rm -f 75hard
+            docker run -d --name 75hard --restart always -p 80:3000 -v /data:/data 75hard
