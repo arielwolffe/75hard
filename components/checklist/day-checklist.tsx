@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { WaterTracker } from "@/components/water/water-tracker";
 import { PhotoUploader } from "@/components/photos/photo-uploader";
-import { GALLON_ML } from "@/lib/constants";
 
 interface DayData {
   id: number;
@@ -81,14 +80,6 @@ export function DayChecklist({
     }
     setCompleting(false);
   }
-
-  const allDone =
-    state.dietDone &&
-    state.workout1Done &&
-    state.workout2Done &&
-    state.waterMl >= GALLON_ML &&
-    state.readingDone &&
-    state.photoDone;
 
   return (
     <div className="space-y-4 pb-24">
@@ -183,15 +174,10 @@ export function DayChecklist({
       {!state.completed && !isFuture && (
         <button
           onClick={completeDay}
-          disabled={!allDone || completing}
-          className={cn(
-            "w-full rounded-2xl px-6 py-4 font-heading text-lg font-700 shadow-md transition-all",
-            allDone
-              ? "bg-mint-500 text-white hover:bg-mint-600 active:scale-[0.98]"
-              : "cursor-not-allowed bg-gray-100 text-gray-400"
-          )}
+          disabled={completing}
+          className="w-full rounded-2xl bg-mint-500 px-6 py-4 font-heading text-lg font-700 text-white shadow-md transition-all hover:bg-mint-600 active:scale-[0.98]"
         >
-          {completing ? "Completing..." : allDone ? "Complete Day" : "Complete all tasks first"}
+          {completing ? "Completing..." : "Complete Day"}
         </button>
       )}
 

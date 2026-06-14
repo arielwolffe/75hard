@@ -1,7 +1,6 @@
 import { db } from "@/db";
 import { days, challenges } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
-import { GALLON_ML } from "@/lib/constants";
 
 export async function POST(
   _request: Request,
@@ -26,21 +25,6 @@ export async function POST(
 
   if (day.completed) {
     return Response.json({ error: "Already completed" }, { status: 400 });
-  }
-
-  const allDone =
-    day.dietDone &&
-    day.workout1Done &&
-    day.workout2Done &&
-    day.waterMl >= GALLON_ML &&
-    day.readingDone &&
-    day.photoDone;
-
-  if (!allDone) {
-    return Response.json(
-      { error: "Not all tasks are complete" },
-      { status: 400 }
-    );
   }
 
   db.update(days)
